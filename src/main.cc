@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
 
   int day = 2;
   int part = 2;
-  int is_example = true;
+  int is_example = false;
 
   switch (argc) {
     case 4: {

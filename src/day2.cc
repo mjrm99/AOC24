@@ -8,10 +8,30 @@
 
 #include "days.h"
 
-bool ValidDiff(int diff, int diff0, int minChange, int maxChange) {
+bool ValidDiff(int diff, int diff0) {
+  constexpr int kMinChange = 1;
+  constexpr int kMaxChange = 3;
   int diff_abs = std::abs(diff);
-  // Same sing differences should multiply to a positive number
-  return (diff * diff0 > 0) && diff_abs <= maxChange && diff_abs >= minChange;
+  return ((diff > 0) == (diff0 > 0)) && diff_abs <= kMaxChange && diff_abs >= kMinChange;
+}
+
+struct CheckSafeResult {
+  bool is_safe;
+  int error_index;
+};
+
+CheckSafeResult CheckSafe(std::vector<int> numbers) {
+  bool is_safe = true;
+  int initial_diff = numbers[1] - numbers[0];
+  int i = 1;
+  for (; i < ssize(numbers); i++) {
+    int diff = numbers[i] - numbers[i - 1];
+    if (!ValidDiff(diff, initial_diff)) {
+      is_safe = false;
+      break;
+    }
+  }
+  return {is_safe, i};
 }
 
 int SolveDay2(int part, bool is_example) {
@@ -20,71 +40,61 @@ int SolveDay2(int part, bool is_example) {
   std::filesystem::path input_path = GetInputPath(2, part, is_example);
   std::ifstream input_file(input_path);
   if (input_file.is_open()) {
-    constexpr int kMinChange = 1;
-    constexpr int kMaxChange = 3;
     constexpr std::string_view delimiter = " ";
     size_t delimiter_position;
 
     std::string line;
     while (std::getline(input_file, line)) {
-      bool is_safe = true;
-      std::vector<int> differences;
+      std::vector<int> numbers;
 
       std::string current_line = line;
-      int current_number = 0;
-      int prev_number = 0;
       do {
         delimiter_position = current_line.find(delimiter);
-        current_number = std::stoi(current_line.substr(0, delimiter_position));
+        numbers.emplace_back(std::stoi(current_line.substr(0, delimiter_position)));
         current_line = current_line.substr(delimiter_position + delimiter.length());
 
-        differences.emplace_back(current_number - prev_number);
-        prev_number = current_number;
       } while (delimiter_position != current_line.npos);
 
-      differences.erase(differences.begin());  // First difference is not real (prev_number starts as 0)
+      auto [is_safe, error_index] = CheckSafe(numbers);
 
-      bool can_tolerate = true;
-      for (int i = 0; i < ssize(differences); i++) {
-        if (!ValidDiff(differences[i], differences[0], kMinChange, kMaxChange)) {
-          if (can_tolerate && (part == 2)) {
-            can_tolerate = false;
-            if (i > 0) {
-              int adding_prev_diff = differences[i - 1] + differences[i];
-              int adding_next_diff = differences[i] + differences[i + 1];
-              if (ValidDiff(adding_prev_diff, differences[0], kMinChange, kMaxChange)) {
-                differences[i - 1] = adding_prev_diff;
-                differences[i] = adding_prev_diff;
-              } else if (ValidDiff(adding_next_diff, differences[0], kMinChange, kMaxChange)) {
-                differences[i] = adding_next_diff;
-                differences[i + 1] = adding_next_diff;
-              } else {
-                is_safe = false;
-                break;
-              }
+      if (part == 2) {
+        std::vector<int> numbers_copy(numbers);
+        // First try to check without firt element
+        numbers_copy.erase(numbers_copy.begin());
+        std::erase(numbers_copy, 0);
+        auto [corrected, error_index] = CheckSafe(numbers_copy);
+        if (corrected) {
+          is_safe = corrected;
+        } else {
+          // Next try to check without second element
+          numbers_copy = numbers;
+          numbers_copy.erase(numbers_copy.begin() + 1);
+          auto [corrected, _] = CheckSafe(numbers_copy);
+          if (corrected) {
+            is_safe = corrected;
+          } else {
+            // Next try without element at error_index
+            numbers_copy = numbers;
+            numbers_copy.erase(numbers_copy.begin() + error_index);
+            auto [corrected, _] = CheckSafe(numbers_copy);
+            if (corrected) {
+              is_safe = corrected;
             } else {
-              int adding_next_diff = differences[i] + differences[i + 1];
-              if (ValidDiff(adding_next_diff, adding_next_diff, kMinChange, kMaxChange)) {
-                differences[i + 1] = adding_next_diff;
-                differences[i] = adding_next_diff;
-              } else {
-                differences[0] = differences[1];
+              if (error_index > 0) {
+                // Next try without element before error_index
+                numbers_copy = numbers;
+                numbers_copy.erase(numbers_copy.begin() + error_index + 1);
+                auto [corrected, _] = CheckSafe(numbers_copy);
+                if (corrected) {
+                  is_safe = corrected;
+                }
               }
             }
-          } else {
-            is_safe = false;
           }
         }
       }
 
       if (is_safe) {
-        if (!can_tolerate) {
-          std::cout << line << "\n";
-          for (auto c : differences) {
-            std::cout << c << " ";
-          }
-          std::cout << "\n";
-        }
         result += 1;
       }
     }

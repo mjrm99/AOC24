@@ -12,20 +12,37 @@ int SolveDay3(int part, bool is_example) {
   if (input_file.is_open()) {
     std::string line;
     constexpr std::string_view mul_token = "mul(";
+    constexpr std::string_view do_token = "do()";
+    constexpr std::string_view dont_token = "don't()";
     constexpr std::string_view closing_token = ")";
     constexpr std::string_view separator_token = ",";
     constexpr int kMaxInsideSize = 7;
+    bool enabled = true;
 
     while (std::getline(input_file, line)) {
       std::string current_line = line;
+      size_t dont_pos = current_line.npos;
+      size_t do_pos = current_line.npos;
 
-      size_t mult_pos = current_line.npos;
-      do {
-        mult_pos = current_line.find((mul_token));
-        if (mult_pos == current_line.npos) {
-          break;
+      size_t mul_pos = current_line.find((mul_token));
+      while (mul_pos != current_line.npos) {
+        if (part == 2) {
+          dont_pos = current_line.find(dont_token);
+          if (dont_pos < mul_pos || !enabled) {
+            enabled = false;
+            do_pos = current_line.find(do_token);
+            if (do_pos != current_line.npos) {
+              current_line = current_line.substr(do_pos + do_token.length());
+              mul_pos = current_line.find((mul_token));
+              enabled = true;
+            } else {
+              current_line = "";
+              break;
+            }
+          }
         }
-        current_line = current_line.substr(mult_pos + mul_token.size());
+
+        current_line = current_line.substr(mul_pos + mul_token.size());
 
         size_t closing_pos = current_line.find(closing_token);
         if (closing_pos != current_line.npos && closing_pos <= kMaxInsideSize) {
@@ -51,7 +68,8 @@ int SolveDay3(int part, bool is_example) {
             }
           }
         }
-      } while (mult_pos != current_line.npos);
+        mul_pos = current_line.find(mul_token);
+      }
     }
   }
 

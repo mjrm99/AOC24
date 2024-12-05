@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <string_view>
 
 #include "days.h"
@@ -71,6 +72,8 @@ int SolveDay3(int part, bool is_example) {
         mul_pos = current_line.find(mul_token);
       }
     }
+  } else {
+   std::cerr << "Failed to open file: " << input_path << "\n";
   }
 
   return result;

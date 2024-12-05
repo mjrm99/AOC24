@@ -33,6 +33,24 @@ int CheckDirection(std::vector<std::string> grid, Coord coord, int direction_ind
   return 0;
 }
 
+int CheckX(std::vector<std::string> grid, Coord coord) {
+  if (coord.x - 1 >= 0 && coord.x + 1 < ssize(grid[0])) {
+    if (coord.y - 1 >= 0 && coord.y + 1 < ssize(grid)) {
+      char top_left = grid[coord.y - 1][coord.x - 1];
+      char top_right = grid[coord.y - 1][coord.x + 1];
+      char bottom_left = grid[coord.y + 1][coord.x - 1];
+      char bottom_right = grid[coord.y + 1][coord.x + 1];
+
+      if ((top_left == top_right && bottom_left == bottom_right) || (top_left == bottom_left && top_right == bottom_right)) {
+        if ((top_left == 'S' && bottom_right == 'M') || (top_left == 'M' && bottom_right == 'S')) {
+          return 1;
+        }
+      }
+    }
+  }
+  return 0;
+}
+
 int SolveDay4(int part, bool is_example) {
   int result = 0;
 
@@ -40,26 +58,40 @@ int SolveDay4(int part, bool is_example) {
   std::ifstream input_file(input_path);
   if (input_file.is_open()) {
     std::vector<std::string> lines;
-    const std::string pattern = "XMAS";
-    const char start_char = pattern[0];
 
     std::string line;
     while (std::getline(input_file, line)) {
       lines.emplace_back(line);
     }
 
-    for (int y = 0; y < ssize(lines); y++) {
-      std::string current_line = lines[y];
-      size_t x = current_line.find(start_char); 
-      while (x != current_line.npos) {
-        current_line.replace(x, 1, 1, '.');
-        for (int i = 0; i < ssize(directions); i++) {
-          result += CheckDirection(lines, Coord(x, y), i, pattern);
+    if (part == 1) {
+      const std::string pattern = "XMAS";
+      const char start_char = pattern[0];
+      for (int y = 0; y < ssize(lines); y++) {
+        std::string current_line = lines[y];
+        size_t x = current_line.find(start_char);
+        while (x != current_line.npos) {
+          current_line.replace(x, 1, 1, '.');
+          for (int i = 0; i < ssize(directions); i++) {
+            result += CheckDirection(lines, Coord(x, y), i, pattern);
+          }
+          x = current_line.find(start_char);
         }
-        x = current_line.find(start_char);
+      }
+    } else {
+      const char target_char = 'A';
+      for (int y = 0; y < ssize(lines); y++) {
+        std::string current_line = lines[y];
+        size_t x = current_line.find(target_char);
+        while (x != current_line.npos) {
+          current_line.replace(x, 1, 1, '.');
+          result += CheckX(lines, Coord(x, y));
+          x = current_line.find(target_char);
+        }
       }
     }
+  } else {
+    std::cerr << "Failed to open file: " << input_path << "\n";
   }
-
   return result;
 }

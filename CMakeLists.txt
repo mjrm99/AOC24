@@ -10,6 +10,7 @@ add_executable(AOC24
   src/day3.cc
   src/day4.cc
   src/day5.cc
+  src/day6.cc
 )
 
 target_compile_features(AOC24 PRIVATE cxx_std_20)

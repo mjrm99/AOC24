@@ -42,25 +42,44 @@ int SolveDay5(int part, bool is_example) {
       int current = std::stoi(current_line);
       pages.emplace_back(current);
 
-      for (int i = 0; i < ssize(pages); i++) {
-        int current = pages[i];
-        for (int requirement : rules[current]) {
-          // Required page on the line
-          if (std::find(pages.begin(), pages.end(), requirement) != pages.end()) {
-            // But not before the current page
-            if (std::find(pages.begin(), pages.begin() + i, requirement) == pages.begin() + i) {
+      if (part == 1) {
+        for (int i = 0; i < ssize(pages); i++) {
+          int current = pages[i];
+          for (int requirement : rules[current]) {
+            if (std::find(pages.begin() + i, pages.end(), requirement) != pages.end()) {
               valid = false;
               break;
             }
           }
+          if (!valid) {
+            break;
+          }
         }
-        if (!valid) {
-          break;
-        }
-      }
 
-      if (valid) {
-        result += pages[ssize(pages) / 2];
+        if (valid) {
+          result += pages[ssize(pages) / 2];
+        }
+      } else {
+        for (int i = 0; i < ssize(pages); i++) {
+          bool correction = false;
+          int current = pages[i];
+          for (int requirement : rules[current]) {
+            if (std::find(pages.begin() + i, pages.end(), requirement) != pages.end()) {
+              valid = false;
+              correction = true;
+
+              std::erase(pages, requirement);
+              pages.emplace(pages.begin() + i, requirement);
+            }
+          }
+          if (correction) {
+            i -= 1;
+          }
+        }
+
+        if (!valid) {
+          result += pages[ssize(pages) / 2];
+        }
       }
     }
 

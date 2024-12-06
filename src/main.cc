@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
   bool exit_status = true;
 
   int day = 5;
-  int part = 1;
+  int part = 2;
   int is_example = true;
 
   switch (argc) {

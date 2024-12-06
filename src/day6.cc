@@ -2,6 +2,7 @@
 #include <array>
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <vector>
 
 #include "days.h"
@@ -11,6 +12,7 @@ struct Cell {
   int y;
   bool wall;
   bool visited;
+  std::set<int> directions;
 };
 
 struct Pos {
@@ -23,6 +25,36 @@ constexpr std::array<Pos, 4> directions = {Pos{0, -1, 0}, Pos{1, 0, 1}, Pos{0, 1
 
 int GetCellIndex(int x, int y, int size) {
   return x + y * size;
+}
+
+bool DoesExit(Pos guard, std::vector<Cell>& cells, std::set<int>& visited, int max_x, int max_y) {
+  bool exit = false;
+  while (!exit) {
+    if (guard.x >= 0 && guard.x < max_x && guard.y >= 0 && guard.y < max_y) {
+      Cell& current_cell = cells[GetCellIndex(guard.x, guard.y, max_x)];
+      if (current_cell.directions.contains(guard.direction)) {
+        return false;
+      }
+      current_cell.visited = true;
+      current_cell.directions.insert(guard.direction);
+      visited.insert(GetCellIndex(guard.x, guard.y, max_x));
+
+      Pos next_cell = guard;
+      next_cell.x += directions[guard.direction].x;
+      next_cell.y += directions[guard.direction].y;
+
+      if (next_cell.x >= 0 && next_cell.x < max_x && next_cell.y >= 0 && next_cell.y < max_y && cells[GetCellIndex(next_cell.x, next_cell.y, max_x)].wall) {
+        guard.direction = (guard.direction + 1) % 4;
+      } else {
+        guard.x = next_cell.x;
+        guard.y = next_cell.y;
+      }
+
+    } else {
+      exit = true;
+    }
+  }
+  return exit;
 }
 
 int SolveDay6(int part, bool is_example) {
@@ -45,33 +77,31 @@ int SolveDay6(int part, bool is_example) {
           guard = {x, y, 0};
           visited = true;
         }
-        cells.emplace_back(x, y, line[x] == '#', visited);
+        cells.emplace_back(x, y, line[x] == '#', visited, std::set<int>{});
       }
       y += 1;
     }
     int max_y = y;
 
-    bool exit = false;
-    while (!exit) {
-      if (guard.x >= 0 && guard.x < max_x && guard.y >= 0 && guard.y < max_y) {
-        cells[GetCellIndex(guard.x, guard.y, max_x)].visited = true;
-        Pos next_cell = guard;
-        next_cell.x += directions[guard.direction].x;
-        next_cell.y += directions[guard.direction].y;
-
-        if (next_cell.x >= 0 && next_cell.x < max_x && next_cell.y >= 0 && next_cell.y < max_y && cells[GetCellIndex(next_cell.x, next_cell.y, max_x)].wall) {
-          guard.direction = (guard.direction + 1) % 4;
-        } else {
-          guard.x = next_cell.x;
-          guard.y = next_cell.y;
+    std::set<int> visited;
+    if (part == 1) {
+      DoesExit(guard, cells, visited, max_x, max_y);
+      result = ssize(visited);
+    } else {
+      std::vector<Cell> cells_copy = cells;
+      DoesExit(guard, cells, visited, max_x, max_y);
+      cells = cells_copy;
+      for (int cell_id : visited) {
+        cells_copy = cells;
+        if (cell_id != GetCellIndex(guard.x, guard.y, max_x)) {
+          cells_copy[cell_id].wall = true;
+          std::set<int> new_visited;
+          if (!DoesExit(guard, cells_copy, new_visited, max_x, max_y)) {
+            result += 1;
+          }
         }
-
-      } else {
-        exit = true;
       }
     }
-
-    result = std::count_if(cells.begin(), cells.end(), [](Cell cell) { return cell.visited; });
 
   } else {
     std::cerr << "Failed to open file: " << input_path << "\n";

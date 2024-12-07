@@ -6,7 +6,7 @@
 #include <string_view>
 #include <vector>
 
-#include "days.h"
+#include "day_utils.h"
 
 bool ValidDiff(int diff, int diff0) {
   constexpr int kMinChange = 1;

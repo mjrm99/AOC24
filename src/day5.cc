@@ -5,7 +5,7 @@
 #include <set>
 #include <vector>
 
-#include "days.h"
+#include "day_utils.h"
 
 int SolveDay5(int part, bool is_example) {
   int result = 0;

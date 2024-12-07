@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string_view>
 
-#include "days.h"
+#include "day_utils.h"
 
 int SolveDay3(int part, bool is_example) {
   int result = 0;

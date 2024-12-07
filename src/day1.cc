@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "days.h"
+#include "day_utils.h"
 
 int SolveDay1(int part, bool is_example) {
   int result = 0;

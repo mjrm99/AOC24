@@ -1,11 +1,10 @@
-#include <algorithm>
 #include <array>
 #include <fstream>
 #include <iostream>
 #include <set>
 #include <vector>
 
-#include "days.h"
+#include "day_utils.h"
 
 struct Cell {
   int x;

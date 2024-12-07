@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
         is_example = true;
       } else if (value == "False" || value == "false" || value == "F" || value == "f" || value == "0") {
         is_example = false;
-      } else{
+      } else {
         std::cerr << "Invalid is_example value. \n";
       }
     }
@@ -33,6 +33,10 @@ int main(int argc, char *argv[]) {
       break;
     default:
       std::cerr << "Only 0, 1, 2 or 3 arguments supported. \n";
+  }
+
+  if (part != 1 && part != 2) {
+    std::cerr << "Part must be 1 or 2.\n";
   }
 
   long result = 0;

@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <stack>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -43,17 +44,20 @@ long SolveDay7(int part, bool is_example) {
         Solution current_solution = solutions.top();
         solutions.pop();
 
-        if (current_solution.last_op == 0) {
+        if (current_solution.last_op < part) {
           // Next time check other operand
-          solutions.emplace(current_solution.total, 1, current_solution.lenght);
+          solutions.emplace(current_solution.total, current_solution.last_op + 1, current_solution.lenght);
         }
 
-        long new_total;
+        long new_total = -1;
         if (current_solution.last_op == 0) {
           new_total = current_solution.total + numbers[current_solution.lenght];
-        } else {
+        } else if (current_solution.last_op == 1) {
           new_total = current_solution.total * numbers[current_solution.lenght];
+        } else {
+          new_total = std::stol(std::to_string(current_solution.total) + std::to_string(numbers[current_solution.lenght]));
         }
+
         // New total can't be lower than current total (long multiplication over/under flow)
         // if (new_total < current_solution.total) {
         // break;

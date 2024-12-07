@@ -7,9 +7,9 @@
 int main(int argc, char *argv[]) {
   bool exit_status = true;
 
-  int day = 6;
+  int day = 7;
   int part = 1;
-  int is_example = true;
+  int is_example = false;
 
   switch (argc) {
     case 4: {
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
       std::cerr << "Only 0, 1, 2 or 3 arguments supported. \n";
   }
 
-  int result = 0;
+  long result = 0;
 
   std::cout << "Solving day " << day << ":\n\n";
   switch (day) {
@@ -56,6 +56,9 @@ int main(int argc, char *argv[]) {
       break;
     case 6:
       result = SolveDay6(part, is_example);
+      break;
+    case 7:
+      result = SolveDay7(part, is_example);
       break;
     default:
       std::cerr << "Invalid day selected. \n";

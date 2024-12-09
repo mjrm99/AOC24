@@ -18,3 +18,6 @@ int SolveDay6(int part, bool is_example);
 
 // Gets the solution for day 7.
 long SolveDay7(int part, bool is_example);
+
+// Gets the solution for day 8.
+int SolveDay8(int part, bool is_example);

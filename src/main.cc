@@ -7,9 +7,9 @@
 int main(int argc, char *argv[]) {
   bool exit_status = true;
 
-  int day = 7;
+  int day = 8;
   int part = 1;
-  int is_example = false;
+  int is_example = true;
 
   switch (argc) {
     case 4: {
@@ -63,6 +63,9 @@ int main(int argc, char *argv[]) {
       break;
     case 7:
       result = SolveDay7(part, is_example);
+      break;
+    case 8:
+      result = SolveDay8(part, is_example);
       break;
     default:
       std::cerr << "Invalid day selected. \n";
